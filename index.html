@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdvocateAutomated - Legal Case Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+      
+      :root {
+        --primary-glow: #48f520;
+        --bg-dark: #021208;
+        --bg-gradient: radial-gradient(circle at center, #0a2d1a 0%, #021208 100%);
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background: var(--bg-gradient);
+        min-height: 100vh;
+        margin: 0;
+        color: white;
+      }
+
+      .glass-card {
+        background: rgba(13, 31, 20, 0.6);
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(72, 245, 32, 0.1);
+        border-radius: 2.5rem;
+      }
+
+      .input-glass {
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(72, 245, 32, 0.1);
+        border-radius: 1.25rem;
+        transition: all 0.3s ease;
+      }
+
+      .input-glass:focus-within {
+        border-color: var(--primary-glow);
+        box-shadow: 0 0 15px rgba(72, 245, 32, 0.1);
+      }
+
+      .neon-button {
+        background: #48f520;
+        box-shadow: 0 0 25px rgba(72, 245, 32, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .neon-button:hover {
+        background: #5fff3d;
+        box-shadow: 0 0 35px rgba(72, 245, 32, 0.5);
+        transform: translateY(-2px);
+      }
+
+      .neon-text {
+        color: #48f520;
+      }
+
+      .portal-btn {
+        background: rgba(13, 31, 20, 0.4);
+        border: 1px solid rgba(72, 245, 32, 0.15);
+        transition: all 0.2s ease;
+      }
+
+      .portal-btn:hover {
+        background: rgba(72, 245, 32, 0.05);
+        border-color: rgba(72, 245, 32, 0.4);
+      }
+
+      /* Transitions */
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "react": "https://esm.sh/react@^19.2.4",
+    "@google/genai": "https://esm.sh/@google/genai@^1.41.0"
+  }
+}
+</script>
+</head>
+<body class="overflow-x-hidden">
+    <div id="root"></div>
+</body>
+</html>

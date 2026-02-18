@@ -1,0 +1,7 @@
+{
+  "name": "AdvocateAutomated - Legal Case Management System",
+  "description": "A comprehensive production-ready legal platform for advocates, clients, and admins featuring case management, Razorpay integration, and AI-powered legal research.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
