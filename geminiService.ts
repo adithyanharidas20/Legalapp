@@ -1,22 +1,21 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || "";
-
+// Use process.env.GEMINI_API_KEY directly and create instance at call-site as per guidelines
 export class GeminiService {
-  private ai: GoogleGenAI;
-
-  constructor() {
-    this.ai = new GoogleGenAI({ apiKey: API_KEY });
-  }
-
+  /**
+   * Performs complex legal research using the Pro model with an optimized thinking budget.
+   */
   async getLegalResearch(query: string) {
     try {
-      const response = await this.ai.models.generateContent({
+      // Create instance at call site to ensure up-to-date API key
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: `Act as a senior legal researcher. Provide a detailed summary and relevant case law references for the following query: ${query}`,
         config: {
-            thinkingConfig: { thinkingBudget: 10000 }
+          // Setting max thinking budget for the pro model to ensure high-quality reasoning
+          thinkingConfig: { thinkingBudget: 32768 }
         }
       });
       return response.text;
@@ -26,9 +25,13 @@ export class GeminiService {
     }
   }
 
+  /**
+   * Analyzes legal documents for critical points and risks.
+   */
   async analyzeDocument(docName: string, caseTitle: string) {
     try {
-      const response = await this.ai.models.generateContent({
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Analyze the document titled "${docName}" within the context of the legal case "${caseTitle}". 
         Since you don't have the full raw text, provide a checklist of critical legal points an advocate should verify 
@@ -41,11 +44,18 @@ export class GeminiService {
     }
   }
 
+  /**
+   * Drafts formal legal documents with high-quality reasoning using the Pro model.
+   */
   async draftLegalDocument(type: string, details: string) {
     try {
-      const response = await this.ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+      const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-pro-preview', // Upgraded to pro for better document drafting quality
         contents: `Draft a formal ${type} document based on these details: ${details}. Use standard Indian legal formatting.`,
+        config: {
+          thinkingConfig: { thinkingBudget: 32768 }
+        }
       });
       return response.text;
     } catch (error) {

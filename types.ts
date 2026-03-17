@@ -18,6 +18,14 @@ export enum PaymentStatus {
   PAID = 'Paid'
 }
 
+export interface ChatMessage {
+  id: string;
+  senderId: string;
+  receiverId: string;
+  text: string;
+  timestamp: string;
+}
+
 export interface CaseHistoryItem {
   id: string;
   event: string;
@@ -33,7 +41,7 @@ export interface User {
   mobile: string;
   address?: string;
   barCouncilNumber?: string;
-  barId?: string; // Stores filename or data
+  barId?: string; 
   aadhaar?: string;
   state?: string;
   court?: string;

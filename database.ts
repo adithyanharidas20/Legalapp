@@ -1,5 +1,5 @@
 
-import { User, UserRole, Appointment, Case, Payment, Task } from './types';
+import { User, UserRole, Appointment, Case, Payment, Task, ChatMessage } from './types';
 
 const STORAGE_KEYS = {
   USERS: 'aa_users',
@@ -7,6 +7,7 @@ const STORAGE_KEYS = {
   CASES: 'aa_cases',
   PAYMENTS: 'aa_payments',
   TASKS: 'aa_tasks',
+  MESSAGES: 'aa_messages',
   CURRENT_USER: 'aa_current_user'
 };
 
@@ -120,7 +121,6 @@ export const db = {
   getCases: () => get<Case[]>(STORAGE_KEYS.CASES, []),
   saveCase: (c: Case) => {
     const cases = db.getCases();
-    // Initialize history if new
     if (!c.history) c.history = [{ id: 'h1', actor: 'System', event: 'Case Initialized', date: new Date().toISOString() }];
     set(STORAGE_KEYS.CASES, [...cases, c]);
   },
@@ -150,5 +150,11 @@ export const db = {
   saveTask: (t: Task) => {
     const tasks = db.getTasks();
     set(STORAGE_KEYS.TASKS, [...tasks, t]);
+  },
+
+  getChatMessages: () => get<ChatMessage[]>(STORAGE_KEYS.MESSAGES, []),
+  saveChatMessage: (msg: ChatMessage) => {
+    const msgs = db.getChatMessages();
+    set(STORAGE_KEYS.MESSAGES, [...msgs, msg]);
   }
 };

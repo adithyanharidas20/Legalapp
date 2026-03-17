@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import ChatWindow from '../components/ChatWindow';
 import { db } from '../database';
 import { User, UserRole, Case } from '../types';
 
@@ -9,6 +10,8 @@ const AdminDashboard: React.FC = () => {
   const [cases, setCases] = useState<Case[]>([]);
   const [selectedUserDoc, setSelectedUserDoc] = useState<string | null>(null);
   const [viewingCase, setViewingCase] = useState<Case | null>(null);
+  const [chattingWith, setChattingWith] = useState<User | null>(null);
+  const [chatType, setChatType] = useState<'clients' | 'advocates'>('clients');
 
   const currentUser: User = JSON.parse(localStorage.getItem('aa_current_user') || '{}');
 
@@ -29,6 +32,8 @@ const AdminDashboard: React.FC = () => {
   };
 
   const pendingAdvocates = users.filter(u => u.role === UserRole.ADVOCATE && !u.isApproved);
+  const clients = users.filter(u => u.role === UserRole.CLIENT);
+  const approvedAdvocates = users.filter(u => u.role === UserRole.ADVOCATE && u.isApproved);
   const totalRevenue = cases.filter(c => c.paymentStatus === 'Paid').reduce((acc, c) => acc + c.feeAmount, 0);
 
   return (
@@ -53,87 +58,163 @@ const AdminDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-10">
-        {/* Verification Queue */}
-        <section className="glass-card p-8 shadow-xl">
-          <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-black uppercase tracking-widest text-white flex items-center">
-                  <i className="fas fa-shield-alt mr-4 text-orange-400"></i>
-                  Advocate Verification
-              </h2>
-          </div>
-          
-          {pendingAdvocates.length === 0 ? (
-            <div className="text-center py-10 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50">
-              <p className="text-gray-500 text-xs font-black uppercase tracking-widest">No pending verifications</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Columns: Operations */}
+        <div className="lg:col-span-2 space-y-10">
+          <section className="glass-card p-8 shadow-xl">
+            <div className="flex items-center justify-between mb-8">
+                <h2 className="text-xl font-black uppercase tracking-widest text-white flex items-center">
+                    <i className="fas fa-shield-alt mr-4 text-orange-400"></i>
+                    Advocate Verification
+                </h2>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-left">
-                <thead>
-                  <tr className="text-[#48f520] text-[10px] font-black uppercase tracking-widest border-b border-emerald-900/40">
-                    <th className="pb-4">Advocate Details</th>
-                    <th className="pb-4">Credential Check</th>
-                    <th className="pb-4 text-right">Actions</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-emerald-900/20">
-                  {pendingAdvocates.map(adv => (
-                    <tr key={adv.id} className="group hover:bg-emerald-950/10 transition-colors">
-                      <td className="py-6">
-                        <p className="font-black text-white uppercase tracking-wider text-sm">{adv.name}</p>
-                        <p className="text-[10px] text-gray-500">{adv.email}</p>
-                      </td>
-                      <td className="py-6">
-                        <button 
-                            onClick={() => setSelectedUserDoc(adv.barId || 'demo-id.jpg')}
-                            className="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 px-3 py-1 rounded-lg hover:bg-emerald-800 hover:text-white transition-all"
-                        >
-                            <i className="fas fa-file-image mr-2"></i> View Bar ID
-                        </button>
-                      </td>
-                      <td className="py-6 text-right">
-                        <div className="flex justify-end space-x-3">
-                          <button onClick={() => handleAction(adv.id, true)} className="bg-[#48f520] text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Approve</button>
-                          <button onClick={() => handleAction(adv.id, false)} className="border border-red-900 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Deny</button>
-                        </div>
-                      </td>
+            
+            {pendingAdvocates.length === 0 ? (
+              <div className="text-center py-10 bg-black/20 rounded-3xl border border-dashed border-emerald-900/50">
+                <p className="text-gray-500 text-xs font-black uppercase tracking-widest">No pending verifications</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left">
+                  <thead>
+                    <tr className="text-[#48f520] text-[10px] font-black uppercase tracking-widest border-b border-emerald-900/40">
+                      <th className="pb-4">Advocate Details</th>
+                      <th className="pb-4">Credential Check</th>
+                      <th className="pb-4 text-right">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </section>
+                  </thead>
+                  <tbody className="divide-y divide-emerald-900/20">
+                    {pendingAdvocates.map(adv => (
+                      <tr key={adv.id} className="group hover:bg-emerald-950/10 transition-colors">
+                        <td className="py-6">
+                          <p className="font-black text-white uppercase tracking-wider text-sm">{adv.name}</p>
+                          <p className="text-[10px] text-gray-500">{adv.email}</p>
+                        </td>
+                        <td className="py-6">
+                          <button 
+                              onClick={() => setSelectedUserDoc(adv.barId || 'demo-id.jpg')}
+                              className="text-xs bg-emerald-950 text-emerald-400 border border-emerald-800 px-3 py-1 rounded-lg hover:bg-emerald-800 hover:text-white transition-all"
+                          >
+                              <i className="fas fa-file-image mr-2"></i> View Bar ID
+                          </button>
+                        </td>
+                        <td className="py-6 text-right">
+                          <div className="flex justify-end space-x-3">
+                            <button onClick={() => handleAction(adv.id, true)} className="bg-[#48f520] text-black px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Approve</button>
+                            <button onClick={() => handleAction(adv.id, false)} className="border border-red-900 text-red-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest">Deny</button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
 
-        {/* Master Case Log */}
-        <section className="glass-card p-8 shadow-xl">
-          <h2 className="text-xl font-black uppercase tracking-widest text-white mb-8 flex items-center">
-              <i className="fas fa-database mr-4 text-blue-400"></i>
-              Platform Master Case Log
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {cases.map(c => (
-                  <div key={c.id} className="p-6 bg-black/30 border border-emerald-900/30 rounded-3xl flex justify-between items-center group hover:border-[#48f520]/40 transition-all">
-                      <div>
-                          <p className="text-white font-black uppercase tracking-wider text-sm">{c.title}</p>
-                          <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black">{c.category} • Case #{c.id}</p>
+          <section className="glass-card p-8 shadow-xl">
+            <h2 className="text-xl font-black uppercase tracking-widest text-white mb-8 flex items-center">
+                <i className="fas fa-database mr-4 text-blue-400"></i>
+                Platform Master Case Log
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {cases.map(c => (
+                    <div key={c.id} className="p-6 bg-black/30 border border-emerald-900/30 rounded-3xl flex justify-between items-center group hover:border-[#48f520]/40 transition-all">
+                        <div>
+                            <p className="text-white font-black uppercase tracking-wider text-sm">{c.title}</p>
+                            <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black">{c.category} • Case #{c.id}</p>
+                        </div>
+                        <button 
+                          onClick={() => setViewingCase(c)}
+                          className="w-10 h-10 rounded-full border border-emerald-900/50 flex items-center justify-center text-gray-400 group-hover:text-[#48f520] group-hover:border-[#48f520]"
+                        >
+                            <i className="fas fa-eye"></i>
+                        </button>
+                    </div>
+                ))}
+            </div>
+          </section>
+        </div>
+
+        {/* Messaging Section (Col 3) */}
+        <div className="space-y-8">
+          <section className="glass-card p-6 h-full flex flex-col min-h-[600px]">
+            <h2 className="text-xl font-black uppercase tracking-widest text-white mb-6 flex items-center">
+                <i className="fas fa-comments mr-3 text-emerald-400"></i>
+                Support Center
+            </h2>
+
+            {/* Chat Type Toggle */}
+            <div className="flex mb-6 p-1 bg-black/40 rounded-2xl border border-emerald-900/40">
+              <button 
+                onClick={() => setChatType('clients')}
+                className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${chatType === 'clients' ? 'bg-[#48f520] text-black shadow-lg' : 'text-gray-500 hover:text-white'}`}
+              >
+                Clients
+              </button>
+              <button 
+                onClick={() => setChatType('advocates')}
+                className={`flex-1 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all ${chatType === 'advocates' ? 'bg-[#48f520] text-black shadow-lg' : 'text-gray-500 hover:text-white'}`}
+              >
+                Advocates
+              </button>
+            </div>
+            
+            <div className="space-y-3 flex-1 overflow-y-auto mb-6 pr-1 custom-scrollbar">
+              <p className="text-[10px] text-gray-500 uppercase font-black tracking-widest mb-2">Active Channels ({chatType})</p>
+              
+              {(chatType === 'clients' ? clients : approvedAdvocates).length === 0 ? (
+                <div className="py-10 text-center italic text-gray-700 text-[10px] uppercase font-black tracking-widest">No active {chatType} nodes</div>
+              ) : (
+                (chatType === 'clients' ? clients : approvedAdvocates).map(node => (
+                  <button 
+                    key={node.id}
+                    onClick={() => setChattingWith(node)}
+                    className={`w-full p-4 rounded-2xl border border-emerald-900/30 flex items-center justify-between group hover:border-[#48f520]/30 transition-all ${chattingWith?.id === node.id ? 'bg-[#48f520]/10 border-[#48f520]/40' : 'bg-black/20'}`}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 rounded-lg bg-emerald-800 flex items-center justify-center font-black text-xs text-white uppercase">
+                        {node.name.charAt(0)}
                       </div>
-                      <button 
-                        onClick={() => setViewingCase(c)}
-                        className="w-10 h-10 rounded-full border border-emerald-900/50 flex items-center justify-center text-gray-400 group-hover:text-[#48f520] group-hover:border-[#48f520]"
-                      >
-                          <i className="fas fa-eye"></i>
-                      </button>
-                  </div>
-              ))}
-          </div>
-        </section>
+                      <div className="text-left">
+                        <p className="text-[11px] font-black text-white uppercase tracking-wider">{node.name}</p>
+                        <p className="text-[8px] text-emerald-500 uppercase font-black tracking-widest">ID: {node.id.substr(0, 8)}</p>
+                      </div>
+                    </div>
+                    <i className="fas fa-chevron-right text-gray-700 group-hover:text-[#48f520] transition-colors"></i>
+                  </button>
+                ))
+              )}
+            </div>
+            
+            {chattingWith ? (
+              <div className="animate-in fade-in duration-300">
+                <ChatWindow 
+                  currentUser={currentUser}
+                  targetUser={chattingWith}
+                  onClose={() => setChattingWith(null)}
+                />
+              </div>
+            ) : (
+              <div className="p-8 text-center bg-black/40 rounded-3xl border border-dashed border-emerald-900/40">
+                <i className="fas fa-comment-dots text-emerald-900/40 text-4xl mb-4"></i>
+                <p className="text-[10px] text-gray-600 font-black uppercase tracking-widest">Select a channel to initialize uplink</p>
+              </div>
+            )}
+          </section>
+        </div>
       </div>
 
-      {/* ID Viewing Modal */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #064e3b; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #48f520; }
+      `}</style>
+
+      {/* Existing ID/Case Modals ... */}
       {selectedUserDoc && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/95 backdrop-blur-md">
               <div className="max-w-xl w-full text-center">
                   <h3 className="text-white font-black uppercase tracking-widest mb-6">Credential Document Preview</h3>
                   <div className="aspect-video bg-emerald-900/20 border-2 border-dashed border-emerald-800 rounded-3xl flex items-center justify-center mb-8">
@@ -150,9 +231,8 @@ const AdminDashboard: React.FC = () => {
           </div>
       )}
 
-      {/* Master Case Details Modal */}
       {viewingCase && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
               <div className="glass-card w-full max-w-2xl p-10 max-h-[90vh] overflow-y-auto">
                   <div className="flex justify-between items-start mb-8">
                       <div>
